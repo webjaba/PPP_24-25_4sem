@@ -1,6 +1,8 @@
+from config import read_cfg
+
 
 def main():
-    # Ваш код здесь
+    cfg = read_cfg()
     pass
 
 if __name__ == "__main__":
