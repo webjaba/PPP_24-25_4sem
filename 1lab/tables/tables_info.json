@@ -1,0 +1,10 @@
+[
+    {
+        "table":"testtable",
+        "columns":[
+            {"name":"name", "dtype":"str"},
+            {"name":"age", "dtype":"int"}
+        ],
+        "path":"tables/testtable.csv"
+    }
+]
