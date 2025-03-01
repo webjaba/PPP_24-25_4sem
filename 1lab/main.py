@@ -1,10 +1,12 @@
 """main файл."""
-from config import read_cfg
+from internal.config import read_cfg
 
 
 def main():
     """."""
     cfg = read_cfg()
+
+    print(cfg)
 
     # TODO: инициализировать сервер
 

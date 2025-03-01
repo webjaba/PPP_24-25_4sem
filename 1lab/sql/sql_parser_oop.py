@@ -53,12 +53,12 @@ class SQLParser:
             elem = query[i]
             match elem:
                 case "FROM":
+                    if i + 1 == len(query):  # this solution for validating
+                        return False         # table name may be not scalable
                     break
                 case _:
                     if query[i+1] != "FROM" and elem[-1] != ",":
                         return False
-        if i + 1 == len(query):  # this solution for validating table name
-            return False         # may be not scalable
         return True
 
     @staticmethod
@@ -69,4 +69,4 @@ class SQLParser:
         return True
 
 
-SQLParser().select("")
+# SQLParser().select("")
