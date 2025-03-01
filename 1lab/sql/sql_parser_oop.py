@@ -40,14 +40,22 @@ class SQLParser:
                 raise InvalidQueryError("Unable to parse query.")
 
     @staticmethod
-    def validate_select_from(query: list[str]) -> bool:
+    def validate_struct(query: list[str]) -> bool:
         """Check the SELECT and FROM phrases."""
+
         if "SELECT" not in query or "FROM" not in query:
             return False
-        if query.index("SELECT") > query.index("FROM"):
+        from_indx = query.index("FROM")
+        if query.index("SELECT") > from_indx:
             return False
         if query.count("SELECT") != 1 or query.count("FROM") != 1:
             return False
+        if "WHERE" in query:
+            if query.count("WHERE") != 1:
+                return False
+            if query.index("WHERE") < from_indx:
+                return False
+
         return True
 
     @staticmethod
@@ -72,7 +80,7 @@ class SQLParser:
         return True
 
     @staticmethod
-    def validate_where(query: list[str]) -> bool:
+    def validate_where_condition(query: list[str]) -> bool:
         """Validate WHERE statement."""
         if "WHERE" in query:
             pass

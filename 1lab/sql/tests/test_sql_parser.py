@@ -13,12 +13,16 @@ import pytest
             (["SELECT", "SELECT", "FROM"], False),
             (["SELECT", "FROM", "FROM"], False),
             (["FROM", "SELECT"], False),
+            (["SELECT", "FROM", "WHERE"], True),
+            (["SELECT", "FROM", "WHERE", "WHERE"], False),
+            (["SELECT", "WHERE", "FROM"], False),
+            (["FROM", "WHERE", "SELECT"], False)
         ]
 )
 def test_select_from(query, result):
     """Test for select and from validation."""
     parser = SQLParser()
-    assert parser.validate_select_from(query) == result
+    assert parser.validate_struct(query) == result
 
 
 @pytest.mark.parametrize(
