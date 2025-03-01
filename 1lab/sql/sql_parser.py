@@ -1,74 +1,135 @@
-# TODO: покрыть логами
-# TODO: отрефакторить
-# TODO: покрыть тестами
+"""Module, that provided api for parsing SQL queries."""
+from typing import TypedDict, List
 
-def parse_select_query(query_str: str) -> tuple[str, list, str]:
-    ENDED = True
-    columns: list[str] = []
-    keyword = ""
-    table = ""
-    condition = ""
 
-    if query_str[-1] != ";":
-        ENDED = False
+class Query(TypedDict):
+    table: str
+    columns: List[str]
+    condition: str
 
-    if ENDED:
-        query = query_str[:-1].split(" ")
-    else:
-        query = query_str.split(" ")
 
-    print(query)
+class InvalidQueryError(Exception):
+    """Base class for handling exception during parsing SQL queries."""
 
-    if query[0] != "SELECT":
-        print("Запрос должен начинаться с SELECT")
-        return (table, columns, condition)
+    def __init__(self, message: str = ""):
+        """Initialize error."""
+        self.message = message
+        super().__init__(self.message)
 
-    for i in range(0, len(query)):
-        query_part = query[i]
+    def __str__(self):
+        """Strging representation."""
+        return f"Invalid query: {self.message}"
 
-        if query_part == "":
-            continue
 
-        elif query_part == "SELECT":
-            if keyword == "":
-                keyword = "SELECT"
-                continue
-            else:
-                print("Запрос должен содержать только одно ключевое слово SELECT")
-                return (table, columns, condition)
+class SQLParser:
+    """SQL parser class."""
 
-        elif query_part == "FROM":
-            if keyword == "SELECT":
-                keyword = "FROM"
-                continue
-            else:
-                print("В запросе должно содержаться ровно одно ключевое слово FROM, находящееся после SELECT")
-                return (table, columns, condition)
+    def __init__(self) -> None:
+        """Initialize SQL parser."""
+        pass
 
-        elif query_part == "WHERE":
-            if keyword == "FROM":
-                keyword = "WHERE"
-                continue
-            else:
-                print("В запросе должно быть ровно одно ключевое слово WHERE, стоящее после FROM")
-                return (table, columns, condition)
+    def select(self, query: str) -> Query:
+        """
+        Parse SELECT query.
 
-        else:
-            if keyword == "SELECT":
-                if query_part[-1] == ",":
-                    columns.append(query_part[:-1])
-                else:
-                    columns.append(query_part)
-            elif keyword == "FROM":
-                if (i != len(query) - 1) and (query[i+1] != "WHERE"):
-                    print("После указания имени таблицы запрос должен либо заканчиваться, либо должно идти ключевое слово WHERE")
-                    return (table, columns, condition)
-                else:
-                    table = query_part
-            elif keyword == "WHERE":
-                if condition == "":
-                    delimiter = ""
-                else:
-                    delimiter = " "
-                condition = delimiter.join((condition, query_part))
-    return (table, columns, condition)
+        methods for validating query should have 'validate_' prefix
+        """
+
+        result: Query = {
+            "table": "",
+            "columns": [],
+            "condition": "",
+        }
+
+        query_list = query.split(" ")
+
+        validation_methods = [
+            attr
+            for attr in dir(self)
+            if callable(getattr(self, attr)) and attr[0:9] == "validate_"
+        ].__iter__()
+
+        for method in validation_methods:
+            if getattr(self, method)(query_list) is False:
+                raise InvalidQueryError("Unable to parse query.")
+
+        keyword = "SELECT"
+
+        for i in range(1, len(query)):
+            part = query[i]
+            match keyword:
+                case "SELECT":
+                    if part == "FROM":
+                        keyword = part
+                        continue
+                    else:
+                        if part[-1] == ",":
+                            result["columns"].append(part[:-1])
+                case "FROM":
+                    if part == "WHERE":
+                        keyword = part
+                        continue
+                    else:
+                        if part[-1] == ";":
+                            result["table"] = part[:-1]
+                            break
+                        else:
+                            result["table"] = part
+                case "WHERE":
+                    if result["condition"] == "":
+                        result["condition"] = part
+                    else:
+                        if part[-1] == ";":
+                            part = part[:-1]
+                        result["condition"] = " ".join(
+                            (result["condition"], part)
+                        )
+
+        return result
+
+    @staticmethod
+    def validate_struct(query: list[str]) -> bool:
+        """Check the SELECT and FROM phrases."""
+
+        if "SELECT" not in query or "FROM" not in query:
+            return False
+        from_indx = query.index("FROM")
+        if query.index("SELECT") > from_indx:
+            return False
+        if query.count("SELECT") != 1 or query.count("FROM") != 1:
+            return False
+        if "WHERE" in query:
+            if query.count("WHERE") != 1:
+                return False
+            if query.index("WHERE") < from_indx:
+                return False
+
+        return True
+
+    @staticmethod
+    def validate_columns_and_table(query: list[str]) -> bool:
+        """Validate writed columns names and table name."""
+        cols_cnt = 0
+        for i in range(1, len(query)):
+            elem = query[i]
+            match elem:
+                case "FROM":
+                    if i + 1 == len(query):  # this solution for validating
+                        return False         # table name may be not scalable
+                    if cols_cnt == 0:
+                        return False
+                    break
+                case _:
+                    if query[i+1] != "FROM" and elem[-1] != ",":
+                        return False
+                    if query[i+1] == "FROM" and elem[-1] == ",":
+                        return False
+                    cols_cnt += 1
+        return True
+
+    @staticmethod
+    def validate_where_condition(query: list[str]) -> bool:
+        """Validate WHERE statement."""
+        if "WHERE" in query:
+            pass
+        return True
