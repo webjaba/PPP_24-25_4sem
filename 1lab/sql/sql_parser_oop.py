@@ -59,6 +59,8 @@ class SQLParser:
                 case _:
                     if query[i+1] != "FROM" and elem[-1] != ",":
                         return False
+                    if query[i+1] == "FROM" and elem[-1] == ",":
+                        return False
         return True
 
     @staticmethod
