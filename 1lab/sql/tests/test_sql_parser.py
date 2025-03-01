@@ -10,6 +10,9 @@ import pytest
             (["SELECT", "*", "FROM", "table1"], True),
             (["SelEct", "FROM"], False),
             (["SELECT", "froM"], False),
+            (["SELECT", "SELECT", "FROM"], False),
+            (["SELECT", "FROM", "FROM"], False),
+            (["FROM", "SELECT"], False),
         ]
 )
 def test_select_from(query, result):
@@ -22,7 +25,7 @@ def test_select_from(query, result):
         "query, result",
         [
             (["SELECT", "FROM"], False),
-            (["SELECT", "*", "FROM", "table1"], True),
+            (["SELECT", "FROM", "table1"], False),
             (["sef", "SELECT", "table1", "FROM"], False),
             (["SELECT", "col1,", "col2,", "FROM", "table1"], False),
             (["SELECT", "col1", "col2,", "FROM", "table1"], False),

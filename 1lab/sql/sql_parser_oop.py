@@ -42,25 +42,33 @@ class SQLParser:
     @staticmethod
     def validate_select_from(query: list[str]) -> bool:
         """Check the SELECT and FROM phrases."""
-        if "SELECT" in query and "FROM" in query:
-            return True
-        return False
+        if "SELECT" not in query or "FROM" not in query:
+            return False
+        if query.index("SELECT") > query.index("FROM"):
+            return False
+        if query.count("SELECT") != 1 or query.count("FROM") != 1:
+            return False
+        return True
 
     @staticmethod
     def validate_columns_and_table(query: list[str]) -> bool:
         """Validate writed columns names and table name."""
+        cols_cnt = 0
         for i in range(1, len(query)):
             elem = query[i]
             match elem:
                 case "FROM":
                     if i + 1 == len(query):  # this solution for validating
                         return False         # table name may be not scalable
+                    if cols_cnt == 0:
+                        return False
                     break
                 case _:
                     if query[i+1] != "FROM" and elem[-1] != ",":
                         return False
                     if query[i+1] == "FROM" and elem[-1] == ",":
                         return False
+                    cols_cnt += 1
         return True
 
     @staticmethod
@@ -69,6 +77,3 @@ class SQLParser:
         if "WHERE" in query:
             pass
         return True
-
-
-# SQLParser().select("")
