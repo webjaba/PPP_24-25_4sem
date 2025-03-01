@@ -1,13 +1,13 @@
 import json
 import csv
-# from pprint import pprint
+from sql.utils import Query
 
 # TODO: покрыть тестами
 
 
-def load_metatable(cfg: dict) -> dict:
+def load_metatable(cfg: dict) -> dict[str, dict]:
     """Функция для загрузки главной таблицы с мета информацией."""
-    with open(cfg["tables_info_path"], mode="r", encoding="utf-8") as file:
+    with open(cfg["metatable_path"], mode="r", encoding="utf-8") as file:
         jsondata = json.load(file)
         return jsondata
 
@@ -15,25 +15,27 @@ def load_metatable(cfg: dict) -> dict:
 class Table:
     """Класс таблицы."""
 
-    def __init__(self, table_name: str, metatable: dict) -> None:
+    def __init__(
+            self,
+            table_name: str,
+            metatable: dict[str, dict]
+    ) -> None:
         """Загрузка общей информации таблицы."""
-        self.columns = {}
+        self.columns = dict()
         self.path = ""
-        for table in metatable:
-            if table["table"] == table_name:
-                cnt = 0
-                for column in table["columns"]:
-                    self.columns[column["name"]] = {
-                        "indx": cnt,
-                        "dtype": self.parse_type(column["dtype"])
-                    }
-                    cnt += 1
-                self.path = table["path"]
-                break
+        cnt = 0
+        table = metatable[table_name]
+        for column in table["columns"]:
+            self.columns[column["name"]] = {
+                "indx": cnt,
+                "dtype": self.parse_type(column["dtype"])
+            }
+            cnt += 1
+        self.path = table["path"]
         if self.path == "":
             print("Table does not exists")
 
-    def select(self, where: str = "", columns: list[str] = ["*"]) -> list:
+    def select(self, query: Query) -> list:
         """Обработка SELECT запроса."""
         # TODO: дописать обработку условия
 
@@ -48,12 +50,12 @@ class Table:
                     column = self.columns[col]
                     row[column["indx"]] = column["dtype"](row[column["indx"]])
 
-                if where != "":
+                if query["condition"] != "":
                     pass
 
-                if columns != ["*"]:
+                if query["columns"] != ["*"]:
                     new_row = []
-                    for col_ in columns:
+                    for col_ in query["columns"]:
                         col = self.columns.get(col_, None)
                         if col is not None:
                             new_row.append(row[col["indx"]])
@@ -71,11 +73,3 @@ class Table:
                 return int
             case "str":
                 return str
-
-
-print(Table(
-    "testtable",
-    {
-        "tables_info_path": r"tables/tables_info.json"
-    }
-).select(columns=["*"]))

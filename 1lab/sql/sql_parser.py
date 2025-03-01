@@ -1,24 +1,5 @@
 """Module, that provided api for parsing SQL queries."""
-from typing import TypedDict, List
-
-
-class Query(TypedDict):
-    table: str
-    columns: List[str]
-    condition: str
-
-
-class InvalidQueryError(Exception):
-    """Base class for handling exception during parsing SQL queries."""
-
-    def __init__(self, message: str = ""):
-        """Initialize error."""
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        """Strging representation."""
-        return f"Invalid query: {self.message}"
+from .utils import Query, InvalidQueryError
 
 
 class SQLParser:
@@ -40,6 +21,11 @@ class SQLParser:
             "columns": [],
             "condition": "",
         }
+
+        if query == "INFO":
+            result["table"] = "meta"
+            result["columns"].extend(["table", "columns"])
+            return result
 
         query_list = query.split(" ")
 

@@ -1,1 +1,2 @@
-tables_info_path: "tables/tables_info.csv"
+metatable_path: tables/tables_info.csv
+cache: inmemory # none, redis
