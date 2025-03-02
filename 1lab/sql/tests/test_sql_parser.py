@@ -1,5 +1,5 @@
 """Tests for sql parser."""
-from sql.sql_parser_oop import SQLParser
+from sql.sql_parser import SQLParser
 import pytest
 
 

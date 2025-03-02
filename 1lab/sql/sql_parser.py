@@ -7,7 +7,9 @@ class SQLParser:
 
     def __init__(self) -> None:
         """Initialize SQL parser."""
-        pass
+        self.possible_operators = (
+            "<", ">", "<=", ">=", "<>", "=", "AND", "OR", "NOT"
+        )
 
     def select(self, query: str) -> Query:
         """
@@ -15,7 +17,6 @@ class SQLParser:
 
         methods for validating query should have 'validate_' prefix
         """
-
         result: Query = {
             "table": "",
             "columns": [],
@@ -76,7 +77,6 @@ class SQLParser:
     @staticmethod
     def validate_struct(query: list[str]) -> bool:
         """Check the SELECT and FROM phrases."""
-
         if "SELECT" not in query or "FROM" not in query:
             return False
         from_indx = query.index("FROM")
@@ -113,9 +113,33 @@ class SQLParser:
                     cols_cnt += 1
         return True
 
-    @staticmethod
-    def validate_where_condition(query: list[str]) -> bool:
+    def validate_where_condition(self, query: list[str]) -> bool:
         """Validate WHERE statement."""
         if "WHERE" in query:
-            pass
+
+            condition = ""
+
+            condition_list = query[query.index("WHERE") + 1:len(query)]
+
+            for i in range(len(condition_list)):
+                if condition == "":
+                    condition = condition_list[i]
+                else:
+                    condition = " ".join((condition, condition_list[i]))
+
+            stack = []
+
+            for char in condition:
+                match char:
+                    case "(":
+                        stack.append(char)
+                    case ")":
+                        if len(stack) == 0:
+                            return False
+                        stack.pop(-1)
+                    case _:
+                        continue
+
+        # TODO: дописать валидацию правильной последовательности аргументов
+
         return True

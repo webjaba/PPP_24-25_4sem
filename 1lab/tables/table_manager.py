@@ -20,7 +20,16 @@ class TableManager:
     def handle_query(
         self, query: Query
     ) -> Union[list, dict[str, list[dict[str, str]]]]:
+        """
+        Handle query.
 
+        Arguments:
+            query (Query): validated query that needs to be handled
+
+        Returns:
+            list or dict: if table is 'meta' returns dict,
+                otherwise returns list
+        """
         if query["table"] == "meta":
             return self.meta_for_user
 

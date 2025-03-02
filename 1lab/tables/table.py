@@ -1,6 +1,8 @@
 import json
 import csv
 from sql.utils import Query
+from typing import Type
+from .utils import Column
 
 # TODO: покрыть тестами
 
@@ -13,15 +15,22 @@ def load_metatable(cfg: dict) -> dict[str, dict]:
 
 
 class Table:
-    """Класс таблицы."""
+    """Table class."""
 
     def __init__(
             self,
             table_name: str,
             metatable: dict[str, dict]
     ) -> None:
-        """Загрузка общей информации таблицы."""
-        self.columns = dict()
+        """
+        Initialize table.
+
+        Arguments:
+            table_name (str): name of a table, that would be used in a query
+            metatable (dict): metatable, that would be used to parse
+                information about table
+        """
+        self.columns: dict[str, Column] = dict()
         self.path = ""
         cnt = 0
         table = metatable[table_name]
@@ -36,7 +45,15 @@ class Table:
             print("Table does not exists")
 
     def select(self, query: Query) -> list:
-        """Обработка SELECT запроса."""
+        """
+        Handle SELECT query.
+
+        Arguments:
+            query (Query): validated SELECT query.
+
+        Returns:
+            list: a list of rows
+        """
         # TODO: дописать обработку условия
 
         result = []
@@ -55,10 +72,10 @@ class Table:
 
                 if query["columns"] != ["*"]:
                     new_row = []
-                    for col_ in query["columns"]:
-                        col = self.columns.get(col_, None)
-                        if col is not None:
-                            new_row.append(row[col["indx"]])
+                    for col_name in query["columns"]:
+                        col_obj = self.columns.get(col_name, None)
+                        if col_obj is not None:
+                            new_row.append(row[col_obj["indx"]])
                     row = new_row
 
                 result.append(row)
@@ -66,10 +83,20 @@ class Table:
         return result
 
     @staticmethod
-    def parse_type(dtype: str):
-        """Парсинг типа данных."""
+    def parse_type(dtype: str) -> Type:
+        """
+        Parse dtype and returns corresponding type.
+
+        Arguments:
+            dtype (str): data type in str format
+
+        Returns:
+            type: a type of data
+        """
         match dtype:
             case "int":
                 return int
             case "str":
+                return str
+            case _:
                 return str
