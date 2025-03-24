@@ -1,2 +1,4 @@
-metatable_path: tables/tables_info.csv
+metatable_path: storage/metatable.json
 cache: inmemory # none, redis
+ip: localhost
+port: 8080

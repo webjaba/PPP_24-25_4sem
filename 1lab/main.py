@@ -1,17 +1,27 @@
 """main файл."""
 from internal.config import read_cfg
+from tables.table_manager import TableManager
+from sql.sql_parser import SQLParser
+from server.server import Server
 
 
 def main():
     """."""
     cfg = read_cfg()
 
-    print(cfg)
+    sql_parser = SQLParser()
 
-    # TODO: инициализировать сервер
+    table_manager = TableManager(cfg)
 
-    # назначить обработчик запросов
-    pass
+    server = Server(
+        protocol_handler=None,
+        cfg=cfg,
+        sqlparser=sql_parser,
+        tablemanager=table_manager,
+        logger=None
+    )
+
+    server.run()
 
 
 if __name__ == "__main__":

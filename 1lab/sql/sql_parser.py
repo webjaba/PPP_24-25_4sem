@@ -141,5 +141,4 @@ class SQLParser:
                         continue
 
         # TODO: дописать валидацию правильной последовательности аргументов
-
         return True

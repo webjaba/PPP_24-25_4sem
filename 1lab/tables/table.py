@@ -1,5 +1,7 @@
 import json
 import csv
+import os
+import sys
 from sql.utils import Query
 from typing import Type
 from .utils import Column
@@ -8,8 +10,26 @@ from .utils import Column
 
 
 def load_metatable(cfg: dict) -> dict[str, dict]:
-    """Функция для загрузки главной таблицы с мета информацией."""
-    with open(cfg["metatable_path"], mode="r", encoding="utf-8") as file:
+    """
+    Load table with meta inforamation.
+
+    Arguments:
+        cfg (dict): config object
+
+    Returns:
+        dict: table object
+    """
+    path = cfg.get("metatable_path", "")
+
+    if path == "":
+        print("metatable path must be specified")
+        sys.exit(1)
+
+    if not os.path.exists(path):
+        print(f"metatable does not exists, path: {path}")
+        sys.exit(1)
+
+    with open(path, mode="r", encoding="utf-8") as file:
         jsondata = json.load(file)
         return jsondata
 
