@@ -1,6 +1,8 @@
 import socket
 import sys
 from abc import ABC, abstractmethod
+from sql.utils import Query
+from cache.cache import get_cache_obj
 
 
 class ProtocolHandler(ABC):
@@ -12,14 +14,21 @@ class ProtocolHandler(ABC):
 
     @abstractmethod
     def recv(self, conn):
-        pass
+        return ""
 
 
 class Parser(ABC):
 
     @abstractmethod
     def select(self, query: str):
-        pass
+        return Query(table="", columns=[], condition="")
+
+
+class Manager(ABC):
+
+    @abstractmethod
+    def handle_query(self, query: Query) -> bytes:
+        return bytes()
 
 
 class Server:
@@ -28,7 +37,7 @@ class Server:
             protocol_handler: ProtocolHandler,
             cfg: dict,
             sqlparser: Parser,
-            tablemanager,
+            tablemanager: Manager,
             logger=None
     ):
         self.ip = cfg.get('ip')
@@ -37,12 +46,24 @@ class Server:
         self.logger = logger
         self.sqlparser = sqlparser
         self.tablemanager = tablemanager
+        self.cache = get_cache_obj(cfg=cfg)
         if self.port is None or self.ip is None:
             print('ip and port must be specified in config')
             sys.exit(1)
 
     def handle_client(self, conn):
-        pass
+        msg = self.protocol.recv(conn)
+
+        if self.cache.get_query_existance(msg):
+            return self.cache.get_query(msg)
+
+        serialized_data = self.tablemanager.handle_query(
+            self.sqlparser.select(msg)
+        )
+
+        self.cache.add_query(query=msg, result=serialized_data)
+
+        self.protocol.send(serialized_data)
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
