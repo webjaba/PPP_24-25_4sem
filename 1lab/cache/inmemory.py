@@ -5,8 +5,8 @@ class InMemoryCache:
     def get_query_existance(self, query) -> bool:
         return False
 
-    def get_query(self, query) -> list:
-        return []
+    def get_query(self, query) -> bytes:
+        return bytes()
 
     def add_query(self, query, result) -> None:
         pass

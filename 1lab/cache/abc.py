@@ -12,8 +12,8 @@ class AbstractCache(ABC):
         return False
 
     @abstractmethod
-    def get_query(self, query: str) -> list:
-        return []
+    def get_query(self, query: str) -> bytes:
+        return bytes()
 
     @abstractmethod
     def add_query(self, query: str, result: list) -> None:
