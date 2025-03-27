@@ -2,7 +2,6 @@ from .table import load_metatable, Table
 from sql.utils import Query
 from .utils import TableDoesNotExistsError
 from abc import ABC, abstractmethod
-from cache.cache import get_cache_obj
 
 
 class AbstractSerializer(ABC):

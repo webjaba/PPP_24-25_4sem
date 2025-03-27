@@ -139,5 +139,7 @@ class Table:
                 return int
             case "str":
                 return str
+            case "float":
+                return float
             case _:
                 return str
