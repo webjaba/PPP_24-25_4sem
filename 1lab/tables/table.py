@@ -1,10 +1,11 @@
+from .utils import Column
+from sql.utils import Query
+from typing import Type
 import json
 import csv
 import os
 import sys
-from sql.utils import Query
-from typing import Type
-from .utils import Column
+import re
 
 # TODO: покрыть тестами
 
@@ -64,6 +65,24 @@ class Table:
         if self.path == "":
             print("Table does not exists")
 
+    def process_condition(self, condition: str) -> str:
+        column_pattern = re.compile(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b(?=\s*[=<>!]|\s+AND|\s+OR|$)')
+        columns = set(column_pattern.findall(condition))
+        missing = [col for col in columns if col not in self.columns]
+
+        if missing:
+            raise ValueError(
+                f"Column mapping missing for: {', '.join(missing)}"
+            )
+
+        def replacer(match):
+            col = match.group(0)
+            return f"row[{self.columns[col]['indx']}]"
+
+        result = column_pattern.sub(replacer, condition)
+
+        return result
+
     def select(self, query: Query) -> list:
         """
         Handle SELECT query.
@@ -74,7 +93,6 @@ class Table:
         Returns:
             list: a list of rows
         """
-        # TODO: дописать обработку условия
 
         result = []
 
@@ -88,7 +106,10 @@ class Table:
                     row[column["indx"]] = column["dtype"](row[column["indx"]])
 
                 if query["condition"] != "":
-                    pass
+                    cond = self.process_condition(query['condition'])
+
+                    if not eval(cond):
+                        continue
 
                 if query["columns"] != ["*"]:
                     new_row = []
