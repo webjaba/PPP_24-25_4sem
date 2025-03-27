@@ -16,5 +16,5 @@ class AbstractCache(ABC):
         return bytes()
 
     @abstractmethod
-    def add_query(self, query: str, result: list) -> None:
+    def add_query(self, query: str, result: bytes) -> None:
         pass
