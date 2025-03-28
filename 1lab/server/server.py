@@ -52,7 +52,7 @@ class Server:
             )
             self.logger.info(msg=f'message recieved, len = {len(msg)}')
         except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_type, exc_value, _ = sys.exc_info()
             self.logger.error(
                 msg=f'error during recieving a message: {exc_type.__name__}')
 
@@ -61,7 +61,7 @@ class Server:
                 self.logger.info(msg='getting response from cache')
                 self.protocol.send(conn, self.cache.get_query(msg))
         except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_type, exc_value, _ = sys.exc_info()
             self.logger.error(
                 msg=f'error of getting response from cache: {exc_type.__name__}')
 
@@ -73,7 +73,7 @@ class Server:
                 msg=f'request proccessed successfully, response len = {len(serialized_data)}'
             )
         except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_type, exc_value, _ = sys.exc_info()
             self.logger.error(
                 msg=f'error of processing request: {exc_type.__name__}')
 
@@ -81,7 +81,7 @@ class Server:
             self.cache.add_query(query=msg, result=serialized_data)
             self.logger.info(msg='response was cached successfuly')
         except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_type, exc_value, _ = sys.exc_info()
             self.logger.error(
                 msg=f'error during caching: {exc_type.__name__}: {exc_value}')
         self.protocol.send(conn, serialized_data)
@@ -98,4 +98,3 @@ class Server:
                 with conn:
                     self.logger.info(f'connect {addr}')
                     self.handle_client(conn)
-                # self.logger.info(f'closed on {(self.ip, self.port)}')
