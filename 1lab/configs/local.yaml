@@ -1,4 +1,4 @@
-metatable_path: storage/metatable.json
+metatable_path: 1lab/storage/metatable.json
 cache: inmemory # none, redis
 ip: localhost
 port: 8080

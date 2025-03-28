@@ -23,12 +23,12 @@ class SQLParser:
             "condition": "",
         }
 
-        if query == "INFO":
+        if query[1:] == "INFO":
             result["table"] = "meta"
             result["columns"].extend(["table", "columns"])
             return result
 
-        query_list = query.split(" ")
+        query_list = query[1:].split(" ")
 
         validation_methods = [
             attr
@@ -38,12 +38,14 @@ class SQLParser:
 
         for method in validation_methods:
             if getattr(self, method)(query_list) is False:
+                print(method)
+                print(query_list)
                 raise InvalidQueryError("Unable to parse query.")
 
         keyword = "SELECT"
 
-        for i in range(1, len(query)):
-            part = query[i]
+        for i in range(1, len(query_list)):
+            part = query_list[i]
             match keyword:
                 case "SELECT":
                     if part == "FROM":
@@ -52,6 +54,8 @@ class SQLParser:
                     else:
                         if part[-1] == ",":
                             result["columns"].append(part[:-1])
+                        else:
+                            result["columns"].append(part)
                 case "FROM":
                     if part == "WHERE":
                         keyword = part
@@ -78,16 +82,21 @@ class SQLParser:
     def validate_struct(query: list[str]) -> bool:
         """Check the SELECT and FROM phrases."""
         if "SELECT" not in query or "FROM" not in query:
+            # print(1)
             return False
         from_indx = query.index("FROM")
         if query.index("SELECT") > from_indx:
+            # print(2)
             return False
         if query.count("SELECT") != 1 or query.count("FROM") != 1:
+            # print(3)
             return False
         if "WHERE" in query:
             if query.count("WHERE") != 1:
+                # print(4)
                 return False
             if query.index("WHERE") < from_indx:
+                # print(5)
                 return False
 
         return True

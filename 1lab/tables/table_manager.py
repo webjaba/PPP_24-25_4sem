@@ -46,6 +46,7 @@ class TableManager:
             list or dict: if table is 'meta' returns dict,
                 otherwise returns list
         """
+        print(query)
         if query["table"] == "meta":
             return self.serialized_meta_for_user
 
