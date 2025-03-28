@@ -1,3 +1,4 @@
+"""."""
 import sys
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from client_server import ClientServer
 
 
 def main():
-
+    """."""
     server = ClientServer('localhost', 8080)
 
     server.run()

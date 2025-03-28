@@ -1,3 +1,4 @@
+"""."""
 from sql.utils import Query
 from net.proto_abc import AbstractProtocolHandler
 from net.proto import ProtocolHandler
@@ -10,20 +11,26 @@ import logging
 
 
 class Parser(ABC):
+    """."""
 
     @abstractmethod
     def select(self, query: str):
+        """."""
         return Query(table="", columns=[], condition="")
 
 
 class Manager(ABC):
+    """."""
 
     @abstractmethod
     def handle_query(self, query: Query) -> bytes:
+        """."""
         return bytes()
 
 
 class Server:
+    """."""
+
     def __init__(
             self,
             cfg: dict,
@@ -31,6 +38,7 @@ class Server:
             tablemanager: Manager,
             protocol_handler: AbstractProtocolHandler = ProtocolHandler(),
     ):
+        """."""
         self.logger = logging.getLogger('Server')
         self.ip = cfg.get('ip')
         self.port = cfg.get('port')
@@ -44,6 +52,7 @@ class Server:
             sys.exit(1)
 
     def handle_client(self, conn):
+        """."""
         serialized_data = bytes()
         try:
             msg = self.protocol.recv(conn)
@@ -88,6 +97,7 @@ class Server:
         self.logger.info(msg=f'msg was sended: {len(serialized_data)}')
 
     def run(self):
+        """."""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((self.ip, self.port))

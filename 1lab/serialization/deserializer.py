@@ -1,13 +1,18 @@
+"""."""
 import struct
 
+
 class Deserializer:
+    """."""
+
     def __init__(self):
+        """."""
         self.byteorder_int = '>q'
         self.byteorder_float = '>d'
         self.encoding = 'utf-8'
 
     def deserialize(self, data: bytes):
-        """Главный метод десериализации"""
+        """."""
         if not data:
             raise ValueError("Empty data")
 
@@ -28,7 +33,7 @@ class Deserializer:
             raise ValueError(f"Unknown type byte: {type_byte}")
 
     def deserialize_list(self, data: bytes) -> list:
-        """Десериализация списка с рекурсивной обработкой элементов"""
+        """."""
         length = struct.unpack(self.byteorder_int, data[:8])[0]
         offset = 8
         result = []
@@ -44,7 +49,7 @@ class Deserializer:
         return result
 
     def deserialize_dict(self, data: bytes) -> dict:
-        """Десериализация словаря с рекурсивной обработкой пар ключ-значение"""
+        """."""
         length = struct.unpack(self.byteorder_int, data[:8])[0]
         offset = 8
         result = {}
@@ -64,8 +69,12 @@ class Deserializer:
 
         return result
 
-    def _deserialize_element(self, elem_type: bytes, data: bytes) -> tuple[object, int]:
-        """Вспомогательный метод для десериализации элемента"""
+    def _deserialize_element(
+            self,
+            elem_type: bytes,
+            data: bytes
+    ) -> tuple[object, int]:
+        """."""
         if elem_type == b'i':
             return struct.unpack(self.byteorder_int, data[:8])[0], 8
         elif elem_type == b'f':
@@ -87,19 +96,21 @@ class Deserializer:
 
             return items, offset
         elif elem_type == b'd':
-            # Для словаря аналогично
             length = struct.unpack(self.byteorder_int, data[:8])[0]
             offset = 8
             result = {}
 
             for _ in range(length):
-                # Ключ
                 key_type = data[offset:offset+1]
-                key, key_size = self._deserialize_element(key_type, data[offset+1:])
+                key, key_size = self._deserialize_element(
+                    key_type, data[offset+1:]
+                )
                 offset += 1 + key_size
 
                 val_type = data[offset:offset+1]
-                value, val_size = self._deserialize_element(val_type, data[offset+1:])
+                value, val_size = self._deserialize_element(
+                    val_type, data[offset+1:]
+                )
                 offset += 1 + val_size
 
                 result[key] = value
@@ -109,11 +120,14 @@ class Deserializer:
             raise ValueError(f"Unknown element type: {elem_type}")
 
     def deserialize_int(self, data: bytes) -> int:
+        """."""
         return struct.unpack(self.byteorder_int, data[:8])[0]
 
     def deserialize_float(self, data: bytes) -> float:
+        """."""
         return struct.unpack(self.byteorder_float, data[:8])[0]
 
     def deserialize_str(self, data: bytes) -> str:
+        """."""
         str_len = struct.unpack('>I', data[:4])[0]
         return data[4:4+str_len].decode(self.encoding)

@@ -1,3 +1,4 @@
+"""."""
 from .abc import AbstractCache
 from cache.redis import RedisCache
 from cache.inmemory import InMemoryCache

@@ -1,5 +1,5 @@
+"""."""
 import socket
-import os
 import sys
 from serialization.serializer import Serializer
 from serialization.deserializer import Deserializer
@@ -8,7 +8,10 @@ from net.proto import ProtocolHandler
 
 
 class ClientServer:
+    """."""
+
     def __init__(self, ip, port) -> None:
+        """."""
         self.ip = ip
         self.port = port
         self.serializer = Serializer()
@@ -16,11 +19,13 @@ class ClientServer:
         self.protocol: AbstractProtocolHandler = ProtocolHandler()
 
     def handle_query(self, conn, query: str) -> None:
+        """."""
         serialized_query = self.serializer.serialize_str(query)
         self.protocol.send(conn, serialized_query)
         print('msg was sended')
 
     def recv_response(self, conn):
+        """."""
         print('recieving data')
         data = self.protocol.recv(conn=conn)
         print(f'data was recieved: {len(data)}')
@@ -29,11 +34,13 @@ class ClientServer:
         return d
 
     def run(self) -> None:
+        """."""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.ip, self.port))
             self.handle_input(s)
 
     def handle_input(self, conn):
+        """."""
         while True:
             msg = input('type "commands" for more information: ')
             match msg:
@@ -61,7 +68,10 @@ class ClientServer:
                         continue
                     else:
                         self.handle_query(conn, msg)
-                        self.recv_response(conn)
+                        try:
+                            self.recv_response(conn)
+                        except ValueError:
+                            print('empty data')
                 case 'q':
                     print('program has closed')
                     sys.exit(1)
