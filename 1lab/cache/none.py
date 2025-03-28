@@ -1,4 +1,7 @@
-class NoneCache:
+from cache.abc import AbstractCache
+
+
+class NoneCache(AbstractCache):
     def __init__(self):
         pass
 

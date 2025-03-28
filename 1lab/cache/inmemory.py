@@ -1,4 +1,7 @@
-class InMemoryCache:
+from cache.abc import AbstractCache
+
+
+class InMemoryCache(AbstractCache):
     def __init__(self) -> None:
         self.storage: dict[str, bytes] = dict()
 

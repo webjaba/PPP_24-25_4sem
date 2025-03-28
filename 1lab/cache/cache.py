@@ -1,7 +1,7 @@
 from .abc import AbstractCache
-from redis import RedisCache
-from inmemory import InMemoryCache
-from none import NoneCache
+from cache.redis import RedisCache
+from cache.inmemory import InMemoryCache
+from cache.none import NoneCache
 
 
 def get_cache_obj(cfg: dict) -> AbstractCache:

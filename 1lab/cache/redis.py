@@ -1,4 +1,7 @@
-class RedisCache:
+from cache.abc import AbstractCache
+
+
+class RedisCache(AbstractCache):
     def __init__(self):
         pass
 
