@@ -1,4 +1,4 @@
-from app.schemas import schemas
+from app.schemas.schemas import User
 
 from fastapi import APIRouter
 
@@ -7,7 +7,7 @@ router = APIRouter(prefix="/auth")
 
 
 @router.post("/sign-up/")
-def register(user: schemas.User) -> dict:
+def register(user: User) -> dict:
     return {
         "id": 0,
         "email": "",
@@ -16,7 +16,7 @@ def register(user: schemas.User) -> dict:
 
 
 @router.post("/login/")
-def auth(user: schemas.User) -> dict:
+def auth(user: User) -> dict:
     return {
         "id": 0,
         "email": "",
